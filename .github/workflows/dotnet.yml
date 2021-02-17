@@ -1,4 +1,4 @@
-name: .NET
+name: Auto NCov Report
 
 on:
   workflow_dispatch:

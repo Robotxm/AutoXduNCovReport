@@ -1,10 +1,6 @@
 name: .NET
 
 on:
-  push:
-    branches: [ master ]
-  pull_request:
-    branches: [ master ]
   schedule:
     - cron: '0 0 * * *'
 
@@ -22,4 +18,6 @@ jobs:
     - name: Restore dependencies
       run: dotnet restore
     - name: Run and send notification
-      run: dotnet run -- -u ${{ secrets.USERNAME }} -p ${{ secrets.PASSWORD }} -k ${{ secrets.SCKEY }}
+      run: |
+        cd AutoXduNCovReport
+        dotnet run -- -u ${{ secrets.USERNAME }} -p ${{ secrets.PASSWORD }} -k ${{ secrets.SCKEY }}

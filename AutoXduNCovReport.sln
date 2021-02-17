@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31005.135
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AutoXduNCovReport", "AutoXduNCovReport\AutoXduNCovReport.csproj", "{BB5D7AF3-80A2-4E78-B666-A6854387DC79}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{BB5D7AF3-80A2-4E78-B666-A6854387DC79}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BB5D7AF3-80A2-4E78-B666-A6854387DC79}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BB5D7AF3-80A2-4E78-B666-A6854387DC79}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BB5D7AF3-80A2-4E78-B666-A6854387DC79}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {FDE4C77D-13A1-46A5-9DD2-8D342B5CF330}
+	EndGlobalSection
+EndGlobal

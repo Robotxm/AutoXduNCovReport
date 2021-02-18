@@ -30,6 +30,8 @@ The option `--username` can also be `-u`, `--password` can also be `-p` and `--s
 
 ## Advanced Usages
 
+**I have created GitHub Action workflow. So just fork this repository and follow the instructions below to create secrets and change the scheduled time if you want, then enjoy~**
+
 It is inconvenient to run the application manually every day. So let's play with GitHub Action to free ourselves.
 
 Before we play, fork this repository. You do not want to store your username and password in my repository, don't you? After fork, let's start.

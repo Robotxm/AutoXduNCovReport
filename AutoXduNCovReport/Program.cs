@@ -125,6 +125,8 @@ namespace AutoXduNCovReport
             string username,
             [Option('p', Description = "Specify your password")]
             string password,
+            [Option('c', Description = "Specify your campus, N or S is acceptable")]
+            char campus,
             [Option('k', Description = "Specify your Serverchan key")]
             string sckey = "")
         {
@@ -154,16 +156,25 @@ namespace AutoXduNCovReport
                 }
 
                 // Build new information
+                var address = char.ToLower(campus) == 'n'
+                    ? "陕西省西安市雁塔区电子城街道西安电子科技大学北校区"
+                    : "陕西省西安市长安区兴隆街道西太一级公路西安电子科技大学长安校区";
+                var geoApiInfo = char.ToLower(campus) == 'n'
+                    ? "{\"type\":\"complete\",\"info\":\"SUCCESS\",\"status\":1,\"position\":{\"Q\":34.23254,\"R\":108.91516000000001,\"lng\":108.91800,\"lat\":34.23230},\"message\":\"Get ipLocation success.Get address success.\",\"location_type\":\"ip\",\"accuracy\":null,\"isConverted\":true,\"addressComponent\":{\"citycode\":\"029\",\"adcode\":\"610113\",\"businessAreas\":[],\"neighborhoodType\":\"\",\"neighborhood\":\"\",\"building\":\"\",\"buildingType\":\"\",\"street\":\"白沙路\",\"streetNumber\":\"付8号\",\"country\":\"中国\",\"province\":\"陕西省\",\"city\":\"西安市\",\"district\":\"雁塔区\",\"township\":\"电子城街道\"},\"formattedAddress\":\"陕西省西安市雁塔区电子城街道西安电子科技大学北校区\",\"roads\":[],\"crosses\":[],\"pois\":[]}"
+                    : "{\"type\":\"complete\",\"position\":{\"Q\":34.131035970053,\"R\":108.83058024088598,\"lng\":108.83058,\"lat\":34.131036},\"location_type\":\"html5\",\"message\":\"Get geolocation success.Convert Success.Get address success.\",\"accuracy\":220,\"isConverted\":true,\"status\":1,\"addressComponent\":{\"citycode\":\"029\",\"adcode\":\"610116\",\"businessAreas\":[],\"neighborhoodType\":\"\",\"neighborhood\":\"\",\"building\":\"\",\"buildingType\":\"\",\"street\":\"雷甘路\",\"streetNumber\":\"266#\",\"country\":\"中国\",\"province\":\"陕西省\",\"city\":\"西安市\",\"district\":\"长安区\",\"township\":\"兴隆街道\"},\"formattedAddress\":\"陕西省西安市长安区兴隆街道西太一级公路西安电子科技大学长安校区\",\"roads\":[],\"crosses\":[],\"pois\":[],\"info\":\"SUCCESS\"}";
+                var area = char.ToLower(campus) == 'n'
+                    ? "陕西省 西安市 雁塔区"
+                    : "陕西省 西安市 长安区";
                 var submitParams = new Dictionary<string, string>
                 {
                     {"city", "西安市"},
                     {"province", "陕西省"},
-                    {"address", "陕西省西安市长安区兴隆街道西太一级公路西安电子科技大学长安校区"},
+                    {"address", address},
                     {
                         "geo_api_info",
-                        "{\"type\":\"complete\",\"position\":{\"Q\":34.131035970053,\"R\":108.83058024088598,\"lng\":108.83058,\"lat\":34.131036},\"location_type\":\"html5\",\"message\":\"Get geolocation success.Convert Success.Get address success.\",\"accuracy\":220,\"isConverted\":true,\"status\":1,\"addressComponent\":{\"citycode\":\"029\",\"adcode\":\"610116\",\"businessAreas\":[],\"neighborhoodType\":\"\",\"neighborhood\":\"\",\"building\":\"\",\"buildingType\":\"\",\"street\":\"雷甘路\",\"streetNumber\":\"266#\",\"country\":\"中国\",\"province\":\"陕西省\",\"city\":\"西安市\",\"district\":\"长安区\",\"township\":\"兴隆街道\"},\"formattedAddress\":\"陕西省西安市长安区兴隆街道西太一级公路西安电子科技大学长安校区\",\"roads\":[],\"crosses\":[],\"pois\":[],\"info\":\"SUCCESS\"}"
+                        geoApiInfo
                     },
-                    {"area", "陕西省 西安市 长安区"},
+                    {"area", area},
                     {"tw", "2"},
                     {"sfzx", "1"},
                     {"sfcyglq", "0"},

@@ -81,4 +81,4 @@ Save and commit the workflow. Then we can try to run manually and check the resu
 
 ## Notice
 
-This tool uses the information you submitted before, so if you want to change the geolocation, please submit on the website before the schedule is triggered.
+This tool uses the information you submitted before when commit daily information, so if you want to change the geolocation, please submit on the website before the schedule is triggered.

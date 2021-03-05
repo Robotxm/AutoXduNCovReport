@@ -1,5 +1,5 @@
 ﻿using System;
-using System.IO;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -12,10 +12,15 @@ namespace AutoXduNCovReport
     {
         static async Task Main(string[] args)
         {
-            await CoconaApp.RunAsync<Program>(args, options => { options.EnableShellCompletionSupport = false; });
+            await CoconaApp.RunAsync<Program>(args, options =>
+            {
+                options.EnableShellCompletionSupport = false;
+                options.TreatPublicMethodsAsCommands = false;
+            });
         }
 
-        public async Task Report(
+        [Command("ncov", Description = "Submit your ncov information (a.k.a '疫情通')")]
+        public async Task NCov(
             [Option('u', Description = "Specify your student id number")]
             string username,
             [Option('p', Description = "Specify your password")]
@@ -34,7 +39,7 @@ namespace AutoXduNCovReport
                                       "If you are sure that your authentication is correct, contact the author for help.");
                     Console.ResetColor();
                     await SendNotification(sckey, "疫情通填写失败",
-                        $"无法登录疫情通系统: {loginResult.Item2}。请检查用户名和密码。如果确认信息正确，请联系作者.");
+                        $"无法登录疫情通系统: {loginResult.Item2}。请检查用户名和密码。如果确认信息正确，请联系作者。");
                     return;
                 }
 
@@ -111,6 +116,83 @@ namespace AutoXduNCovReport
             {
                 Console.WriteLine(e);
                 await SendNotification(sckey, "自动疫情通运行失败", "请自行检查填写状态。有关运行失败的信息，请联系作者。");
+            }
+        }
+
+        [Command("tcheck", Description = "Submit your tcheck information (a.k.a '晨午晚检')")]
+        public async Task TCheck(
+            [Option('u', Description = "Specify your student id number")]
+            string username,
+            [Option('p', Description = "Specify your password")]
+            string password,
+            [Option('k', Description = "Specify your Serverchan key")]
+            string sckey = "")
+        {
+            try
+            {
+                Console.WriteLine("- Logging in...");
+                var loginResult = await TCheckRepository.Instance.Login(username, password);
+                if (!loginResult.Item1)
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine($"Failed to login ({loginResult.Item2}). Check your username and password.\n" +
+                                      "If you are sure that your authentication is correct, contact the author for help.");
+                    Console.ResetColor();
+                    await SendNotification(sckey, "晨午晚检填写失败",
+                        $"无法登录晨午晚检系统: {loginResult.Item2}。请检查用户名和密码。如果确认信息正确，请联系作者。");
+                    return;
+                }
+
+                Console.WriteLine("- Checking...");
+                var isReported = await TCheckRepository.Instance.CheckIsReported();
+                if (isReported)
+                {
+                    Console.ForegroundColor = ConsoleColor.Green;
+                    Console.WriteLine("You have submitted your information today.");
+                    Console.ResetColor();
+                    return;
+                }
+
+                // Build new information
+                var submitParams = new Dictionary<string, string>
+                {
+                    {"city", "西安市"},
+                    {"province", "陕西省"},
+                    {"address", "陕西省西安市长安区兴隆街道西太一级公路西安电子科技大学长安校区"},
+                    {
+                        "geo_api_info",
+                        "{\"type\":\"complete\",\"position\":{\"Q\":34.131035970053,\"R\":108.83058024088598,\"lng\":108.83058,\"lat\":34.131036},\"location_type\":\"html5\",\"message\":\"Get geolocation success.Convert Success.Get address success.\",\"accuracy\":220,\"isConverted\":true,\"status\":1,\"addressComponent\":{\"citycode\":\"029\",\"adcode\":\"610116\",\"businessAreas\":[],\"neighborhoodType\":\"\",\"neighborhood\":\"\",\"building\":\"\",\"buildingType\":\"\",\"street\":\"雷甘路\",\"streetNumber\":\"266#\",\"country\":\"中国\",\"province\":\"陕西省\",\"city\":\"西安市\",\"district\":\"长安区\",\"township\":\"兴隆街道\"},\"formattedAddress\":\"陕西省西安市长安区兴隆街道西太一级公路西安电子科技大学长安校区\",\"roads\":[],\"crosses\":[],\"pois\":[],\"info\":\"SUCCESS\"}"
+                    },
+                    {"area", "陕西省 西安市 长安区"},
+                    {"tw", "2"},
+                    {"sfzx", "1"},
+                    {"sfcyglq", "0"},
+                    {"sfyzz", "0"},
+                    {"qtqk", ""},
+                    {"ymtys", "0"}
+                };
+                // Submit
+                Console.WriteLine("- Submitting...");
+                var (successful, errMsg) = await TCheckRepository.Instance.Submit(submitParams);
+                if (successful)
+                {
+                    Console.ForegroundColor = ConsoleColor.Green;
+                    Console.WriteLine("Submitted successfully!");
+                }
+                else
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine($"Submitted unsuccessfully: {errMsg}\n" +
+                                      "Contact the author for help.");
+                    await SendNotification(sckey, "晨午晚检填写失败", $"信息提交失败: {errMsg}。请联系作者。");
+                }
+
+                Console.ResetColor();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                await SendNotification(sckey, "自动晨午晚检运行失败", "请自行检查填写状态。有关运行失败的信息，请联系作者。");
             }
         }
 

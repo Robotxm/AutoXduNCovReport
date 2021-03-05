@@ -12,4 +12,8 @@ namespace AutoXduNCovReport.Model
         [property: JsonPropertyName("d")] T Data,
         [property: JsonPropertyName("m")] string Message
     );
+
+    record TCheckData(TCheckOldInfo Info);
+
+    record TCheckOldInfo(bool Readonly);
 }

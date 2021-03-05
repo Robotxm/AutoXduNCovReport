@@ -31,15 +31,15 @@ namespace AutoXduNCovReport
             try
             {
                 Console.WriteLine("- Logging in...");
-                var loginResult = await NCovRepository.Instance.Login(username, password);
-                if (!loginResult.Item1)
+                var (loginSuccessfully, loginErrMsg) = await NCovRepository.Instance.Login(username, password);
+                if (!loginSuccessfully)
                 {
                     Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine($"Failed to login ({loginResult.Item2}). Check your username and password.\n" +
+                    Console.WriteLine($"Failed to login ({loginErrMsg}). Check your username and password.\n" +
                                       "If you are sure that your authentication is correct, contact the author for help.");
                     Console.ResetColor();
                     await SendNotification(sckey, "疫情通填写失败",
-                        $"无法登录疫情通系统: {loginResult.Item2}。请检查用户名和密码。如果确认信息正确，请联系作者。");
+                        $"无法登录疫情通系统: {loginErrMsg}。请检查用户名和密码。如果确认信息正确，请联系作者。");
                     return;
                 }
 
@@ -96,8 +96,8 @@ namespace AutoXduNCovReport
                 newInfo["created"] = $"{DateTimeOffset.Now.ToUnixTimeSeconds()}";
 
                 Console.WriteLine("- Submitting...");
-                var submitResult = await NCovRepository.Instance.Submit(newInfo);
-                if (submitResult.Item1)
+                var (submitSuccessfully, submitErrMsg) = await NCovRepository.Instance.Submit(newInfo);
+                if (submitSuccessfully)
                 {
                     Console.ForegroundColor = ConsoleColor.Green;
                     Console.WriteLine("Submitted successfully!");
@@ -105,9 +105,9 @@ namespace AutoXduNCovReport
                 else
                 {
                     Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine($"Submitted unsuccessfully: {submitResult.Item2}\n" +
+                    Console.WriteLine($"Submitted unsuccessfully: {submitErrMsg}\n" +
                                       "Contact the author for help.");
-                    await SendNotification(sckey, "疫情通填写失败", $"信息提交失败: {loginResult.Item2}。请联系作者。");
+                    await SendNotification(sckey, "疫情通填写失败", $"信息提交失败: {submitErrMsg}。请联系作者。");
                 }
 
                 Console.ResetColor();
@@ -131,15 +131,15 @@ namespace AutoXduNCovReport
             try
             {
                 Console.WriteLine("- Logging in...");
-                var loginResult = await TCheckRepository.Instance.Login(username, password);
-                if (!loginResult.Item1)
+                var (loginSuccessfully, loginErrMsg) = await TCheckRepository.Instance.Login(username, password);
+                if (!loginSuccessfully)
                 {
                     Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine($"Failed to login ({loginResult.Item2}). Check your username and password.\n" +
+                    Console.WriteLine($"Failed to login ({loginErrMsg}). Check your username and password.\n" +
                                       "If you are sure that your authentication is correct, contact the author for help.");
                     Console.ResetColor();
                     await SendNotification(sckey, "晨午晚检填写失败",
-                        $"无法登录晨午晚检系统: {loginResult.Item2}。请检查用户名和密码。如果确认信息正确，请联系作者。");
+                        $"无法登录晨午晚检系统: {loginErrMsg}。请检查用户名和密码。如果确认信息正确，请联系作者。");
                     return;
                 }
 

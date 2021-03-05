@@ -3,7 +3,7 @@ name: Auto NCov Report
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0 0 * * *'
+    - cron: '0 0,4,12 * * *'
 
 jobs:
   build:
@@ -21,4 +21,4 @@ jobs:
     - name: Run and send notification
       run: |
         cd AutoXduNCovReport
-        dotnet run -- -u ${{ secrets.USERNAME }} -p ${{ secrets.PASSWORD }} -k ${{ secrets.SCKEY }}
+        dotnet run -- ${{ secrets.FUNCTION }} -u ${{ secrets.USERNAME }} -p ${{ secrets.PASSWORD }} ${{ secrets.CAMPUS}} -k ${{ secrets.SCKEY }}

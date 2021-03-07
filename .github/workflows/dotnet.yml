@@ -3,7 +3,7 @@ name: Auto NCov Report
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0 0,4,12 * * *'
+    - cron: '0 0,4,10 * * *'
 
 jobs:
   build:

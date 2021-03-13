@@ -54,7 +54,7 @@ namespace AutoXduNCovReport.Repository
             var response = await _api.GetTCheckStatus();
             
             // The 'readonly' field indicates the status
-            return response.Data.Info.Readonly;
+            return response.Data.Readonly;
         }
 
         /// <summary>

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
+using AutoXduNCovReport.Model;
 using AutoXduNCovReport.Repository;
 using Cocona;
 
@@ -20,7 +21,7 @@ namespace AutoXduNCovReport
         }
 
         [Command("ncov", Description = "Submit your ncov information (a.k.a '疫情通')")]
-        public async Task NCov(
+        public async Task<ExitCode> NCov(
             [Option('u', Description = "Specify your student id number")]
             string username,
             [Option('p', Description = "Specify your password")]
@@ -36,11 +37,11 @@ namespace AutoXduNCovReport
                 {
                     Console.ForegroundColor = ConsoleColor.Red;
                     Console.WriteLine($"Failed to login ({loginErrMsg}). Check your username and password.\n" +
-                                      "If you are sure that your authentication is correct, contact the author for help.");
+                                      "If you are sure that your credential is correct, contact the author for help.");
                     Console.ResetColor();
                     await SendNotification(sckey, "疫情通填写失败",
                         $"无法登录疫情通系统: {loginErrMsg}。请检查用户名和密码。如果确认信息正确，请联系作者。");
-                    return;
+                    return ExitCode.InvalidCredential;
                 }
 
                 Console.WriteLine("- Checking...");
@@ -50,7 +51,7 @@ namespace AutoXduNCovReport
                     Console.ForegroundColor = ConsoleColor.Green;
                     Console.WriteLine("You have submitted your information today.");
                     Console.ResetColor();
-                    return;
+                    return ExitCode.Success;
                 }
 
                 var oldInfo = await NCovRepository.Instance.GetOldInfo();
@@ -61,7 +62,7 @@ namespace AutoXduNCovReport
                         "Failed to parse your information submitted before. Contact the author for help.");
                     Console.ResetColor();
                     await SendNotification(sckey, "疫情通填写失败", "无法解析前一日所填信息。请联系作者。");
-                    return;
+                    return ExitCode.ParseUnsuccessfully;
                 }
 
                 // Set temperature
@@ -101,6 +102,8 @@ namespace AutoXduNCovReport
                 {
                     Console.ForegroundColor = ConsoleColor.Green;
                     Console.WriteLine("Submitted successfully!");
+                    Console.ResetColor();
+                    return ExitCode.Success;
                 }
                 else
                 {
@@ -108,19 +111,20 @@ namespace AutoXduNCovReport
                     Console.WriteLine($"Submitted unsuccessfully: {submitErrMsg}\n" +
                                       "Contact the author for help.");
                     await SendNotification(sckey, "疫情通填写失败", $"信息提交失败: {submitErrMsg}。请联系作者。");
+                    return ExitCode.Exception;
                 }
-
-                Console.ResetColor();
             }
             catch (Exception e)
             {
                 Console.WriteLine(e);
                 await SendNotification(sckey, "自动疫情通运行失败", "请自行检查填写状态。有关运行失败的信息，请联系作者。");
             }
+
+            return ExitCode.Exception;
         }
 
         [Command("tcheck", Description = "Submit your tcheck information (a.k.a '晨午晚检')")]
-        public async Task TCheck(
+        public async Task<ExitCode> TCheck(
             [Option('u', Description = "Specify your student id number")]
             string username,
             [Option('p', Description = "Specify your password")]
@@ -138,11 +142,11 @@ namespace AutoXduNCovReport
                 {
                     Console.ForegroundColor = ConsoleColor.Red;
                     Console.WriteLine($"Failed to login ({loginErrMsg}). Check your username and password.\n" +
-                                      "If you are sure that your authentication is correct, contact the author for help.");
+                                      "If you are sure that your credential is correct, contact the author for help.");
                     Console.ResetColor();
                     await SendNotification(sckey, "晨午晚检填写失败",
                         $"无法登录晨午晚检系统: {loginErrMsg}。请检查用户名和密码。如果确认信息正确，请联系作者。");
-                    return;
+                    return ExitCode.InvalidCredential;
                 }
 
                 Console.WriteLine("- Checking...");
@@ -152,7 +156,7 @@ namespace AutoXduNCovReport
                     Console.ForegroundColor = ConsoleColor.Green;
                     Console.WriteLine("You have submitted your information today.");
                     Console.ResetColor();
-                    return;
+                    return ExitCode.Success;
                 }
 
                 // Build new information
@@ -189,6 +193,8 @@ namespace AutoXduNCovReport
                 {
                     Console.ForegroundColor = ConsoleColor.Green;
                     Console.WriteLine("Submitted successfully!");
+                    Console.ResetColor();
+                    return ExitCode.Success;
                 }
                 else
                 {
@@ -196,15 +202,17 @@ namespace AutoXduNCovReport
                     Console.WriteLine($"Submitted unsuccessfully: {errMsg}\n" +
                                       "Contact the author for help.");
                     await SendNotification(sckey, "晨午晚检填写失败", $"信息提交失败: {errMsg}。请联系作者。");
+                    Console.ResetColor();
+                    return ExitCode.Exception;
                 }
-
-                Console.ResetColor();
             }
             catch (Exception e)
             {
                 Console.WriteLine(e);
                 await SendNotification(sckey, "自动晨午晚检运行失败", "请自行检查填写状态。有关运行失败的信息，请联系作者。");
             }
+
+            return ExitCode.Exception;
         }
 
         private async Task SendNotification(string sckey, string title, string content)

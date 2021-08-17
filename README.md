@@ -22,7 +22,7 @@ If you want to receive a notification when process is failed (e.g. there is any 
 
 The option `--username` can also be `-u`, `--password` can also be `-p` and `--sckey` can also be `-k`.
 
-#### Submit your daily information (a.k.a '疫情通')
+#### Submit your daily information (a.k.a '健康卡')
 
 - Submit immediately
 

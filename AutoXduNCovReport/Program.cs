@@ -82,7 +82,14 @@ namespace AutoXduNCovReport
                 if (!oldInfo.ContainsKey("zgfxdq"))
                     oldInfo.Add("zgfxdq", "0");
                 // Parse the geolocation info submitted before
-                var geolocationInfo = JsonDocument.Parse(oldInfo["geo_api_info"].ToString()).RootElement;
+                var oldGeolocationInfo = oldInfo["geo_api_info"].ToString();
+                if (oldGeolocationInfo == null)
+                {
+                    Console.WriteLine("Failed to fetch previous geolocation information.Contact the author for help.");
+                    await SendNotification(sckey, "健康卡填写失败", "无法获取之前填写的位置信息。请联系作者。");
+                    return (int)ExitCode.Exception;
+                }
+                var geolocationInfo = JsonDocument.Parse(oldGeolocationInfo).RootElement;
                 var province = geolocationInfo.GetProperty("addressComponent").GetProperty("province").GetString();
                 var city = geolocationInfo.GetProperty("addressComponent").GetProperty("city").GetString();
                 var area =

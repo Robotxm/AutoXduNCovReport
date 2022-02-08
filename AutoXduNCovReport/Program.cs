@@ -26,8 +26,8 @@ namespace AutoXduNCovReport
             string username,
             [Option('p', Description = "Specify your password")]
             string password,
-            [Option('k', Description = "Specify your Serverchan key")]
-            string sckey = "")
+            [Option("token", new[] {'k'}, Description = "Specify your PushPlus token")]
+            string pushPlusToken = "")
         {
             try
             {
@@ -39,7 +39,7 @@ namespace AutoXduNCovReport
                     Console.WriteLine($"Failed to login ({loginErrMsg}). Check your username and password.\n" +
                                       "If you are sure that your credential is correct, contact the author for help.");
                     Console.ResetColor();
-                    await SendNotification(sckey, "健康卡填写失败",
+                    await SendNotification(pushPlusToken, "健康卡填写失败",
                         $"无法登录健康卡系统: {loginErrMsg}。请检查用户名和密码。如果确认信息正确，请联系作者。");
                     return (int) ExitCode.InvalidCredential;
                 }
@@ -61,7 +61,7 @@ namespace AutoXduNCovReport
                     Console.WriteLine(
                         "Failed to parse your information submitted before. Contact the author for help.");
                     Console.ResetColor();
-                    await SendNotification(sckey, "健康卡填写失败", "无法解析前一日所填信息。请联系作者。");
+                    await SendNotification(pushPlusToken, "健康卡填写失败", "无法解析前一日所填信息。请联系作者。");
                     return (int) ExitCode.ParseUnsuccessfully;
                 }
 
@@ -86,9 +86,10 @@ namespace AutoXduNCovReport
                 if (oldGeolocationInfo == null)
                 {
                     Console.WriteLine("Failed to fetch previous geolocation information.Contact the author for help.");
-                    await SendNotification(sckey, "健康卡填写失败", "无法获取之前填写的位置信息。请联系作者。");
-                    return (int)ExitCode.Exception;
+                    await SendNotification(pushPlusToken, "健康卡填写失败", "无法获取之前填写的位置信息。请联系作者。");
+                    return (int) ExitCode.Exception;
                 }
+
                 var geolocationInfo = JsonDocument.Parse(oldGeolocationInfo).RootElement;
                 var province = geolocationInfo.GetProperty("addressComponent").GetProperty("province").GetString();
                 var city = geolocationInfo.GetProperty("addressComponent").GetProperty("city").GetString();
@@ -117,14 +118,14 @@ namespace AutoXduNCovReport
                     Console.ForegroundColor = ConsoleColor.Red;
                     Console.WriteLine($"Submitted unsuccessfully: {submitErrMsg}\n" +
                                       "Contact the author for help.");
-                    await SendNotification(sckey, "健康卡填写失败", $"信息提交失败: {submitErrMsg}。请联系作者。");
+                    await SendNotification(pushPlusToken, "健康卡填写失败", $"信息提交失败: {submitErrMsg}。请联系作者。");
                     return (int) ExitCode.Exception;
                 }
             }
             catch (Exception e)
             {
                 Console.WriteLine(e);
-                await SendNotification(sckey, "自动健康卡运行失败", "请自行检查填写状态。有关运行失败的信息，请联系作者。");
+                await SendNotification(pushPlusToken, "自动健康卡运行失败", "请自行检查填写状态。有关运行失败的信息，请联系作者。");
             }
 
             return (int) ExitCode.Exception;
@@ -138,8 +139,8 @@ namespace AutoXduNCovReport
             string password,
             [Option('c', Description = "Specify your campus, N or S is acceptable")]
             char campus,
-            [Option('k', Description = "Specify your Serverchan key")]
-            string sckey = "")
+            [Option("token", new[] {'k'}, Description = "Specify your PushPlus token")]
+            string pushPlusToken = "")
         {
             try
             {
@@ -151,7 +152,7 @@ namespace AutoXduNCovReport
                     Console.WriteLine($"Failed to login ({loginErrMsg}). Check your username and password.\n" +
                                       "If you are sure that your credential is correct, contact the author for help.");
                     Console.ResetColor();
-                    await SendNotification(sckey, "晨午晚检填写失败",
+                    await SendNotification(pushPlusToken, "晨午晚检填写失败",
                         $"无法登录晨午晚检系统: {loginErrMsg}。请检查用户名和密码。如果确认信息正确，请联系作者。");
                     return (int) ExitCode.InvalidCredential;
                 }
@@ -208,7 +209,7 @@ namespace AutoXduNCovReport
                     Console.ForegroundColor = ConsoleColor.Red;
                     Console.WriteLine($"Submitted unsuccessfully: {errMsg}\n" +
                                       "Contact the author for help.");
-                    await SendNotification(sckey, "晨午晚检填写失败", $"信息提交失败: {errMsg}。请联系作者。");
+                    await SendNotification(pushPlusToken, "晨午晚检填写失败", $"信息提交失败: {errMsg}。请联系作者。");
                     Console.ResetColor();
                     return (int) ExitCode.Exception;
                 }
@@ -216,7 +217,7 @@ namespace AutoXduNCovReport
             catch (Exception e)
             {
                 Console.WriteLine(e);
-                await SendNotification(sckey, "自动晨午晚检运行失败", "请自行检查填写状态。有关运行失败的信息，请联系作者。");
+                await SendNotification(pushPlusToken, "自动晨午晚检运行失败", "请自行检查填写状态。有关运行失败的信息，请联系作者。");
             }
 
             return (int) ExitCode.Exception;
@@ -227,7 +228,7 @@ namespace AutoXduNCovReport
             if (sckey == "")
                 return;
 
-            await ServerchanRepository.Instance.SendMessage(sckey, title, content);
+            await PushPlusRepository.Instance.SendMessage(sckey, title, content);
         }
     }
 }

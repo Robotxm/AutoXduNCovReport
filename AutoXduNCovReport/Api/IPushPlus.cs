@@ -5,18 +5,18 @@ using Refit;
 namespace AutoXduNCovReport.Api
 {
     /// <summary>
-    /// Network API for Serverchan.
+    /// Network API for PushPlus.
     /// </summary>
-    internal interface IServerchanApi
+    internal interface IPushPlus
     {
         /// <summary>
-        /// Send a message via Serverchan.
+        /// Send a message via PushPlus.
         /// </summary>
-        /// <param name="sckey">The key of Serverchan.</param>
+        /// <param name="token">The token of PushPlus.</param>
         /// <param name="title">The title of message.</param>
         /// <param name="content">The content of message.</param>
         /// <returns>A task that represents the result.</returns>
-        [Get("/{sckey}.send?text={title}&desp={content}")]
-        Task<ServerchanResponse> SendMessage(string sckey, string title, string content);
+        [Get("/send/{token}?title={title}&content={content}")]
+        Task<PushPlusResponse> SendMessage(string token, string title, string content);
     }
 }

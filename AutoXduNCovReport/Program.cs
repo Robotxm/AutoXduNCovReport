@@ -131,7 +131,7 @@ namespace AutoXduNCovReport
         }
 
         [Command("tcheck", Description = "Submit your tcheck information (a.k.a '晨午晚检')")]
-        public async Task<int> TCheck(
+        public async Task<int> ThreeCheck(
             [Option('u', Description = "Specify your student id number")]
             string username,
             [Option('p', Description = "Specify your password")]
@@ -144,7 +144,7 @@ namespace AutoXduNCovReport
             try
             {
                 Console.WriteLine("- Logging in...");
-                var (loginSuccessfully, loginErrMsg) = await TCheckRepository.Instance.Login(username, password);
+                var (loginSuccessfully, loginErrMsg) = await ThreeCheckRepository.Instance.Login(username, password);
                 if (!loginSuccessfully)
                 {
                     Console.ForegroundColor = ConsoleColor.Red;
@@ -157,7 +157,7 @@ namespace AutoXduNCovReport
                 }
 
                 Console.WriteLine("- Checking...");
-                var isReported = await TCheckRepository.Instance.CheckIsReported();
+                var isReported = await ThreeCheckRepository.Instance.CheckIsReported();
                 if (isReported)
                 {
                     Console.ForegroundColor = ConsoleColor.Green;
@@ -195,7 +195,7 @@ namespace AutoXduNCovReport
                 };
                 // Submit
                 Console.WriteLine("- Submitting...");
-                var (successful, errMsg) = await TCheckRepository.Instance.Submit(submitParams);
+                var (successful, errMsg) = await ThreeCheckRepository.Instance.Submit(submitParams);
                 if (successful)
                 {
                     Console.ForegroundColor = ConsoleColor.Green;

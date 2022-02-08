@@ -7,18 +7,18 @@ using Refit;
 
 namespace AutoXduNCovReport.Repository
 {
-    class TCheckRepository
+    class ThreeCheckRepository
     {
-        private static readonly Lazy<TCheckRepository> Lazy = new(() => new TCheckRepository());
+        private static readonly Lazy<ThreeCheckRepository> Lazy = new(() => new ThreeCheckRepository());
         /// <summary>
         /// Get the singleton of the repository.
         /// </summary>
-        public static TCheckRepository Instance => Lazy.Value;
+        public static ThreeCheckRepository Instance => Lazy.Value;
 
-        private readonly ITCheckApi _api;
+        private readonly IThreeCheckApi _api;
         private const string BaseUrl = "https://xxcapp.xidian.edu.cn/";
 
-        private TCheckRepository()
+        private ThreeCheckRepository()
         {
             var options = new JsonSerializerOptions
             {
@@ -29,7 +29,7 @@ namespace AutoXduNCovReport.Repository
                 ContentSerializer = new SystemTextJsonContentSerializer(options)
             };
 
-            _api = RestService.For<ITCheckApi>(BaseUrl, settings);
+            _api = RestService.For<IThreeCheckApi>(BaseUrl, settings);
         }
 
         /// <summary>

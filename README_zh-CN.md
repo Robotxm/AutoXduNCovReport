@@ -50,35 +50,50 @@
 
 ## 高级用法：结合 GitHub Action
 
-### 太长不看版
+### 开始之前
 
-Fork 此 Repo，然后按照下面“创建 Secret”一节的说明创建好相应的 Secret。如果想的话还可以修改定时提交的时间。这样就够了。
+Fork 此 Repo。
 
-### 完整说明
-
-每天手动运行程序还是挺麻烦的，可以结合 GitHub Action 解放自己。
-
-开始之前，先 Fork 此 Repo。肯定没人想把学号和密码存在我这里（当然这也不可能）。完成之后继续。
-
-#### 创建 Secret
+### 创建 Secret
 
 找到 Settings → Secrets，点击“New repository secret”来为学号和密码创建 Secret。例如，学号 Secret 的名称是 `USERNAME`，值是 `1234567890`；密码 Secret 的名称是 `PASSWORD`，值是 `aabbccd`。如果想结合 PushPlus 使用，再创建一个名称为 `SCKEY`，值为 `1a2a3d4f`（当然，换成自己 PushPlus 的 Token）。虽然最新版中已经用 PushPlus 换掉了 Serverchan，为了兼容，在示例和 GitHub Action 的配置文件中，仍使用 `SCKEY` 以向后兼容。
 
 另外还需要两个 Secret。一个是 `FUNCTION`，值为 `tcheck`（如果想提交晨午晚检信息则为 `ncov`）。另一个是 `CAMPUS`，值为 `-c S`（如果住在北校区则为 `-c N`，提交晨午晚检信息时请设置为空值）。
 
-#### 创建或编辑 Workflow
+### 修改计划时间（可选）
 
-接下来转到 Actions，可以在建议中看到“.NET”。点击“Set up with this workflow”，在文本框中会出现一个 yaml 文件。`name` 字段可以随意修改。在 `on` 一节中，删除 `push` 和 `pull` 子项。添加下列内容：
+打开 `.github/workflows` 文件夹中的 `workflow.yml` 文件，默认情况下会看到以下内容：
 
 ```yaml
-workflow_dispatch:
-schedule:
+name: Auto NCov Report
+
+on:
+  workflow_dispatch:
+  schedule:
     - cron: '0 0,4,10 * * *'
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 5.0.x
+    - name: Restore dependencies
+      run: dotnet restore
+    - name: Run and send notification
+      run: |
+        cd AutoXduNCovReport
+        dotnet run -- ${{ secrets.FUNCTION }} -u ${{ secrets.USERNAME }} -p "${{ secrets.PASSWORD }}" ${{ secrets.CAMPUS }} -k ${{ secrets.SCKEY }}
 ```
 
 `workflow_dispatch` 允许手动运行 Workflow。如需手动运行，转到 Actions，点击左侧窗格中的“Auto NCov Report”，再点击右侧的“Run workflow”。`schedule` 允许 Workflow 在指定时间运行。
 
-需要注意，GitHub 使用的时区是 UTC。这也就意味着，要使用 UTC+8 时区（北京时间），需要从目标时间中减去 8 小时。`0 0,4,12 * * *` 表示任务会在每天 8:00 UTC+8（0:00 UTC）、12:00 UTC+8（8:00 UTC）和 18:00 UTC+8（10:00 UTC）的时候运行。也可以指定其他时间。
+如果想要指定其他时间，可以修改 `cron: '0 0,4,10 * * *' `。这个字段支持 cron 表达式。需要注意，GitHub 使用的时区是 UTC。这也就意味着，要使用 UTC+8 时区（北京时间），需要从目标时间中减去 8 小时。`0 0,4,12 * * *` 表示任务会在每天 8:00 UTC+8（0:00 UTC）、12:00 UTC+8（8:00 UTC）和 18:00 UTC+8（10:00 UTC）的时候运行。也可以指定其他时间。
 
 然后，在 `steps` 一节中，将 `Build` 和 `Test` 替换为以下内容。这里立即提交并接收 PushPlus 通知为例：
 
@@ -91,9 +106,9 @@ schedule:
 
 保存并提交 Workflow。然后可以尝试手动运行一次，并检查结果是否正确。
 
-#### 切换晨午晚检和健康卡
+### 切换晨午晚检和健康卡
 
-在校期间需要填写晨午晚检，而假期在家时需要填写健康卡。按照上面的说明修改 `FUNCTION` 的值即可。改动在下次运行 Workflow 时生效。
+在校期间需要填写晨午晚检，而假期在家时需要填写健康卡。按照“创建 Secret”一节中的说明修改 `FUNCTION` 的值即可。改动在下次运行 Workflow 时生效。
 
 ## 注意
 

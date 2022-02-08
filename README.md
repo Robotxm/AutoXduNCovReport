@@ -50,50 +50,56 @@ The option `--username` can also be `-u`, `--password` can also be `-p` and `--t
 
 ## Advanced Usages: Play with GitHub Action
 
-### TL; DR
+### Before we start
 
-Fork this repository and follow the instructions in 'Create secrets' section below to create secrets and change the scheduled time if you like. Then enjoy~
+Fork this repository before we start.
 
-### Full version
-
-It is inconvenient to run the application manually every day. So let's play with GitHub Action to free ourselves.
-
-Before we start, fork this repository. You do not want to store your username and password in my repository, don't you (also impossible)? After fork, let's rock.
-
-#### Create secrets
+### Create secrets
 
 First go to Settings -> Secrets, click 'New repository secret' to create secrets for your username and password. Take an example, let's use `USERNAME` for name with value `1234567890` and `PASSWORD` for password with value `aabbccd`. If you want to work with PushPlus, also create `SCKEY` with value `1a2a3d4f` (certainly this should be your own PushPlus token). Although the latest version has replaced Serverchan with PushPlus, here and in the GitHub Action configuration file in the repository I am still using `SCKEY` for compatibility.
 
 You need create 2 more secrets. One is `FUNCTION` with value `tcheck` (or `ncov` if you want to submit daily information) and the other is `CAMPUS` with value `-c S` (or `-c N` if you live in north campus. **Specify empty value if you want to submit daily information instead of daily 3-time information**).
 
-#### Create or edit workflow
+### Change scheduled time (optional)
 
-Then go to Actions, you can see '.NET' in suggestions. Click 'Set up with this workflow', you can see a yaml file in the textbox. The `name` field can be changed to whatever you like. In section `on`, remove the `push` and `pull` sub-sections. Add following contents:
+Open `workflow.yml` in `.github/workflows` folder, you will see following content by default:
 
 ```yaml
-workflow_dispatch:
-schedule:
+name: Auto NCov Report
+
+on:
+  workflow_dispatch:
+  schedule:
     - cron: '0 0,4,10 * * *'
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 5.0.x
+    - name: Restore dependencies
+      run: dotnet restore
+    - name: Run and send notification
+      run: |
+        cd AutoXduNCovReport
+        dotnet run -- ${{ secrets.FUNCTION }} -u ${{ secrets.USERNAME }} -p "${{ secrets.PASSWORD }}" ${{ secrets.CAMPUS }} -k ${{ secrets.SCKEY }}
 ```
 
-`workflow_dispatch` allows us to run workflow manually. To do this, go to Actions, click 'Auto NCov Report' in the left panel and 'Run workflow' in the right. `schedule` allows the workflow to be run at a certain time.
+`workflow_dispatch` allows you to run workflow manually. To do this, go to Actions, click 'Auto NCov Report' in the left panel and 'Run workflow' in the right. `schedule` allows the workflow to be run at a certain time.
 
-Notice that GitHub uses time zone UTC, so you need substract 8 hours from the desired time if you want to use time zone UTC+8. `0 0,4,12 * * *` represents that the task will run at 8:00 UTC+8 (0:00 UTC), 12:00 UTC+8 (8:00 UTC) and 18:00 UTC+8 (10:00 UTC) everyday. You can also specify any other time you like.
-
-Next, in section `steps`, replace `Build` and `Test` with following contents, here I take submitting immediately and receiving notification for example:
-
-```yaml
-- name: Run and send notification
-  run: |
-    cd AutoXduNCovReport
-    dotnet run -- ${{ secrets.FUNCTION }} -u ${{ secrets.USERNAME }} -p ${{ secrets.PASSWORD }} ${{ secrets.CAMPUS}} -k ${{ secrets.SCKEY }}
-```
+If you want to specify another time different from the default value, you can modify `cron: '0 0,4,10 * * *' `. This field supports cron expression. Notice that GitHub uses time zone UTC, so you need substract 8 hours from the desired time if you want to use time zone UTC+8. `0 0,4,12 * * *` represents that the task will run at 8:00 UTC+8 (0:00 UTC), 12:00 UTC+8 (8:00 UTC) and 18:00 UTC+8 (10:00 UTC) everyday. You can also specify any other time you like.
 
 Save and commit the workflow. Then you can try to run manually and check the result.
 
-#### Switch between daily information and daily 3-time information
+### Switch between daily information and daily 3-time information
 
-Normally, we are required to submit daily 3-time information on campus and submit daily information at home. Just change the value of secret `FUNCTION` following the instructions above and the change will be applied next time the workflow is triggered.
+Normally, we are required to submit daily 3-time information on campus and submit daily information at home. Just change the value of secret `FUNCTION` following the instructions in 'Create secrets' section and the change will be applied next time the workflow is triggered.
 
 ## Notice
 

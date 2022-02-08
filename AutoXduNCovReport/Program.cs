@@ -20,7 +20,7 @@ namespace AutoXduNCovReport
             });
         }
 
-        [Command("ncov", Description = "Submit your ncov information (a.k.a '疫情通')")]
+        [Command("ncov", Description = "Submit your ncov information (a.k.a '健康卡')")]
         public async Task<int> NCov(
             [Option('u', Description = "Specify your student id number")]
             string username,
@@ -39,8 +39,8 @@ namespace AutoXduNCovReport
                     Console.WriteLine($"Failed to login ({loginErrMsg}). Check your username and password.\n" +
                                       "If you are sure that your credential is correct, contact the author for help.");
                     Console.ResetColor();
-                    await SendNotification(sckey, "疫情通填写失败",
-                        $"无法登录疫情通系统: {loginErrMsg}。请检查用户名和密码。如果确认信息正确，请联系作者。");
+                    await SendNotification(sckey, "健康卡填写失败",
+                        $"无法登录健康卡系统: {loginErrMsg}。请检查用户名和密码。如果确认信息正确，请联系作者。");
                     return (int) ExitCode.InvalidCredential;
                 }
 
@@ -61,7 +61,7 @@ namespace AutoXduNCovReport
                     Console.WriteLine(
                         "Failed to parse your information submitted before. Contact the author for help.");
                     Console.ResetColor();
-                    await SendNotification(sckey, "疫情通填写失败", "无法解析前一日所填信息。请联系作者。");
+                    await SendNotification(sckey, "健康卡填写失败", "无法解析前一日所填信息。请联系作者。");
                     return (int) ExitCode.ParseUnsuccessfully;
                 }
 
@@ -110,14 +110,14 @@ namespace AutoXduNCovReport
                     Console.ForegroundColor = ConsoleColor.Red;
                     Console.WriteLine($"Submitted unsuccessfully: {submitErrMsg}\n" +
                                       "Contact the author for help.");
-                    await SendNotification(sckey, "疫情通填写失败", $"信息提交失败: {submitErrMsg}。请联系作者。");
+                    await SendNotification(sckey, "健康卡填写失败", $"信息提交失败: {submitErrMsg}。请联系作者。");
                     return (int) ExitCode.Exception;
                 }
             }
             catch (Exception e)
             {
                 Console.WriteLine(e);
-                await SendNotification(sckey, "自动疫情通运行失败", "请自行检查填写状态。有关运行失败的信息，请联系作者。");
+                await SendNotification(sckey, "自动健康卡运行失败", "请自行检查填写状态。有关运行失败的信息，请联系作者。");
             }
 
             return (int) ExitCode.Exception;

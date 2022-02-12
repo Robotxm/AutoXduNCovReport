@@ -57,11 +57,21 @@ namespace AutoXduNCovReport.Repository
         {
             var rawData = await _api.GetOldInfo();
             // Find the old information
-            var match = Regex.Match(rawData, "var def = (.*?);");
+            var match = Regex.Match(rawData, "var def = (.*?);", RegexOptions.Singleline);
             if (!match.Success)
                 return null;
 
             var initParams = match.Groups[1].Value;
+            // Process empty data
+            // Empty data is caused by missing reporting
+            if (initParams.Contains('\n'))
+            {
+                // When the data is empty, 'def' is a native JavaScript object, whose keys are not quoted.
+                // We need to do something to convert it to JSON string. Painful.
+                initParams = Regex.Replace(initParams, "(\\s+)(.*?):", "$1\"$2\":"); 
+                initParams = Regex.Replace(initParams, ":(.*?)(')", ":$1\"");
+                initParams = Regex.Replace(initParams, "'(.*?),", "\"$1,");
+            }
             var paramsDict = JsonSerializer.Deserialize<Dictionary<string, object>>(initParams);
 
             return paramsDict;

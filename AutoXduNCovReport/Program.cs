@@ -27,7 +27,8 @@ namespace AutoXduNCovReport
             [Option('p', Description = "Specify your password")]
             string password,
             [Option("token", new[] {'k'}, Description = "Specify your PushPlus token")]
-            string pushPlusToken = "")
+            string pushPlusToken = ""
+        )
         {
             try
             {
@@ -83,10 +84,10 @@ namespace AutoXduNCovReport
                     oldInfo.Add("zgfxdq", "0");
                 // Parse the geolocation info submitted before
                 var oldGeolocationInfo = oldInfo["geo_api_info"].ToString();
-                if (oldGeolocationInfo == null)
+                if (string.IsNullOrWhiteSpace(oldGeolocationInfo))
                 {
-                    Console.WriteLine("Failed to fetch previous geolocation information.Contact the author for help.");
-                    await SendNotification(pushPlusToken, "健康卡填写失败", "无法获取之前填写的位置信息。请联系作者。");
+                    Console.WriteLine("Failed to fetch previous geolocation information. You need to report manually possibly.");
+                    await SendNotification(pushPlusToken, "健康卡填写失败", "无法获取之前填写的位置信息。可能需要手动填写。");
                     return (int) ExitCode.Exception;
                 }
 
@@ -113,14 +114,12 @@ namespace AutoXduNCovReport
                     Console.ResetColor();
                     return (int) ExitCode.Success;
                 }
-                else
-                {
-                    Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine($"Submitted unsuccessfully: {submitErrMsg}\n" +
-                                      "Contact the author for help.");
-                    await SendNotification(pushPlusToken, "健康卡填写失败", $"信息提交失败: {submitErrMsg}。请联系作者。");
-                    return (int) ExitCode.Exception;
-                }
+
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine($"Submitted unsuccessfully: {submitErrMsg}\n" +
+                                  "Contact the author for help.");
+                await SendNotification(pushPlusToken, "健康卡填写失败", $"信息提交失败: {submitErrMsg}。请联系作者。");
+                return (int) ExitCode.Exception;
             }
             catch (Exception e)
             {

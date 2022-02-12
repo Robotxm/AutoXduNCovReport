@@ -12,11 +12,13 @@ This tool supports submitting both daily information (a.k.a. '健康卡') and da
 
 ## Basic Usages
 
+```
+dotnet run -- [ncov|tcheck] [--username|-u] <your_student_id> [--password|-p] <your_password> [--campus|-c] <N|S> [--token|-k] <your_pushplus_token>
+```
+
 If you do not want to compile the source code, use `dotnet run` is OK. Or compile and replace `dotnet run --` with your executable file name, where `--username` (or `-u`) and `--password` (or `-p`) are required.
 
 If you are submitting daily 3-time information, the option `--campus` (or `-c`) with value `N` for north campus or `S` for south campus is required.
-
-`dotnet run -- [ncov|tcheck] [--username|-u] <your_student_id> [--password|-p] <your_password> [--campus|-c] <N|S> [--token|-k] <your_pushplus_token>`
 
 If you want to receive a notification when submitting is failed (e.g. there is any exception while executing or submit unsuccessfully), you can specify your PushPlus token with option `--token` (or `-k`). This is optional so just ignore it if you do not want to be disturbed. For register PushPlus and other usages, refer to [PushPlus' Offical Website](https://www.pushplus.plus/)。
 
@@ -32,7 +34,7 @@ The option `--username` can also be `-u`, `--password` can also be `-p` and `--t
 
   `dotnet run -- ncov -u 1234567890 -p aabbccd`
 
-- Submit immediately and receive notification via PushPlus
+- Submit immediately and receive notification via PushPlus if any exception is raised
 
   `dotnet run -- ncov -u 1234567890 -p aabbccd -k 1a2a3d4f`
 
@@ -44,11 +46,11 @@ The option `--username` can also be `-u`, `--password` can also be `-p` and `--t
 
   `dotnet run -- tcheck -u 1234567890 -p aabbccd -c N`
 
-- Submit immediately and receive notification via PushPlus
+- Submit immediately and receive notification via PushPlus if any exception is raised
 
   `dotnet run -- tcheck -u 1234567890 -p aabbccd -c N -k 1a2a3d4f`
 
-## Advanced Usages: Play with GitHub Action
+## Advanced Usages: Play with GitHub Action (Recommended)
 
 ### Before we start
 
@@ -56,9 +58,26 @@ Fork this repository before we start.
 
 ### Create secrets
 
-First go to Settings -> Secrets, click 'New repository secret' to create secrets for your username and password. Take an example, let's use `USERNAME` for name with value `1234567890` and `PASSWORD` for password with value `aabbccd`. If you want to work with PushPlus, also create `SCKEY` with value `1a2a3d4f` (certainly this should be your own PushPlus token). Although the latest version has replaced Serverchan with PushPlus, here and in the GitHub Action configuration file in the repository I am still using `SCKEY` for compatibility.
+First go to Settings -> Secrets -> Actions, click 'New repository secret' to create secrets following required secrets:
 
-You need create 2 more secrets. One is `FUNCTION` with value `tcheck` (or `ncov` if you want to submit daily information) and the other is `CAMPUS` with value `-c S` (or `-c N` if you live in north campus. **Specify empty value if you want to submit daily information instead of daily 3-time information**).
+- `USERNAME`: The value is your student ID, such as `1234567890`
+- `PASSWORD`: The value is your password for IDS, such as `aabbccd`
+- `FUNCTION`: The value is either `tcheck` for submitting daily 3-time information or `ncov` for submitting daily information
+- `CAMPUS`: For submitting daily 3-time information, the value is `-c S` if you live in south campus or  `-c N` if you live in north campus. For submitting daily information, the value is ` ` **(a space instead of an empty value, as GitHub does not allow the empty value)**
+
+If you want to work with PushPlus, create one more secret:
+
+- `SCKEY`: The value is your PushPlus token
+
+So far the workflow can be executed. For more preferences, read the following.
+
+### Switch between daily information and daily 3-time information
+
+Normally, we are required to submit daily 3-time information on campus and submit daily information at home. Just change the value of secret `FUNCTION` following the instructions in 'Create secrets' section and the change will be applied next time the workflow is triggered.
+
+### Run workflow manually (optional)
+
+The workflow in this repository is configured to support running manually. To do this, go to Actions, click the second 'Auto NCov Report' in the left panel and 'Run workflow' in the right.
 
 ### Change scheduled time (optional)
 
@@ -91,15 +110,11 @@ jobs:
         dotnet run -- ${{ secrets.FUNCTION }} -u ${{ secrets.USERNAME }} -p "${{ secrets.PASSWORD }}" ${{ secrets.CAMPUS }} -k ${{ secrets.SCKEY }}
 ```
 
-`workflow_dispatch` allows you to run workflow manually. To do this, go to Actions, click 'Auto NCov Report' in the left panel and 'Run workflow' in the right. `schedule` allows the workflow to be run at a certain time.
+The line `- cron: '0 0,4,10 * * *'` specify the scheduled time. Notice that GitHub uses time zone UTC, so you need substract 8 hours from the desired time if you want to use time zone UTC+8. `0 0,4,12 * * *` represents that the task will run at 8:00 UTC+8 (0:00 UTC), 12:00 UTC+8 (8:00 UTC) and 18:00 UTC+8 (10:00 UTC) everyday.
 
-If you want to specify another time different from the default value, you can modify `cron: '0 0,4,10 * * *'`. This field supports cron expression. Notice that GitHub uses time zone UTC, so you need substract 8 hours from the desired time if you want to use time zone UTC+8. `0 0,4,12 * * *` represents that the task will run at 8:00 UTC+8 (0:00 UTC), 12:00 UTC+8 (8:00 UTC) and 18:00 UTC+8 (10:00 UTC) everyday. You can also specify any other time you like.
+If you want to specify another time different from the default value, you can modify the `cron` field (the content within quotes). It supports cron expressions.
 
-Save and commit the workflow. Then you can try to run manually and check the result.
-
-### Switch between daily information and daily 3-time information
-
-Normally, we are required to submit daily 3-time information on campus and submit daily information at home. Just change the value of secret `FUNCTION` following the instructions in 'Create secrets' section and the change will be applied next time the workflow is triggered.
+After finishing all modification, Save and commit the workflow.
 
 ## Notice
 

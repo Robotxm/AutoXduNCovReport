@@ -52,22 +52,23 @@ namespace AutoXduNCovReport.Repository
         /// <summary>
         /// Get the old information submitted before.
         /// </summary>
-        /// <returns>A task represents the information, which wraps a dictionary. The content in the task could be null when parse is failed.</returns>
+        /// <returns>A task represents the information, which wraps a dictionary. The content in the task could be null when failed to parse.</returns>
         public async Task<Dictionary<string, object>?> GetOldInfo()
         {
             var rawData = await _api.GetOldInfo();
             // Find the old information
-            var match = Regex.Match(rawData, "var def = (.*?);", RegexOptions.Singleline);
+            var match = Regex.Match(rawData, "var def = ([\\s\\S]*?);", RegexOptions.Singleline);
             if (!match.Success)
                 return null;
 
             var initParams = match.Groups[1].Value;
             // Process empty data
-            // Empty data is caused by missing reporting
+            // Empty data is caused by missing report
             if (initParams.Contains('\n'))
             {
-                // When the data is empty, 'def' is a native JavaScript object, whose keys are not quoted.
-                // We need to do something to convert it to JSON string. Painful.
+                // When the data is empty, keys of 'def' are not quoted.
+                // We need to do something to convert it to JSON string.
+                // Painful.
                 initParams = Regex.Replace(initParams, "(\\s+)(.*?):", "$1\"$2\":"); 
                 initParams = Regex.Replace(initParams, ":(.*?)(')", ":$1\"");
                 initParams = Regex.Replace(initParams, "'(.*?),", "\"$1,");

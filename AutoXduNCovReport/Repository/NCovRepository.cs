@@ -57,7 +57,7 @@ namespace AutoXduNCovReport.Repository
         {
             var rawData = await _api.GetOldInfo();
             // Find the old information
-            var match = Regex.Match(rawData, "var def = ([\\s\\S]*?);", RegexOptions.Singleline);
+            var match = Regex.Match(rawData, "var def = ([\\s\\S]*?);\n", RegexOptions.Singleline);
             if (!match.Success)
                 return null;
 
